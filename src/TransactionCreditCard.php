@@ -29,10 +29,13 @@ class TransactionCreditCard extends Transaction
             'credit' => $this->credit,
         ]);
 
-        $data += array_filter([
-            'device' => $this->device,
-            'shippings' => $this->shippings,
-        ]);
+        if(!empty($this->device)){
+            $data['device'] = $this->device;
+        }
+
+        if(!empty($this->shippings)){
+            $data['shippings'] = [$this->shippings];
+        }
 
         return $data;
     }
