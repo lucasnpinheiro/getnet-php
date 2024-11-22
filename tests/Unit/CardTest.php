@@ -4,6 +4,7 @@ namespace Lucasnpinheiro\Getnet\Tests\Unit;
 
 use Lucasnpinheiro\Getnet\Card;
 use PHPUnit\Framework\TestCase;
+
 class CardTest extends TestCase
 {
     public function testConstruct()

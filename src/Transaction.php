@@ -8,13 +8,11 @@ use JsonSerializable;
 
 class Transaction implements JsonSerializable
 {
-
     public function __construct(
         private string $sellerId,
         private int $amount,
         private string $currency = "BRL"
-    )
-    {
+    ) {
     }
 
     public function jsonSerialize(): array

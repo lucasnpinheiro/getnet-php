@@ -6,7 +6,6 @@ namespace Lucasnpinheiro\Getnet;
 
 class TransactionBoleto extends Transaction
 {
-
     public function __construct(
         private string $sellerId,
         private int $amount,
@@ -14,8 +13,7 @@ class TransactionBoleto extends Transaction
         private Order $order,
         private Boleto $boleto,
         private Customer $customer
-    )
-    {
+    ) {
         parent::__construct($sellerId, $amount, $currency);
     }
 

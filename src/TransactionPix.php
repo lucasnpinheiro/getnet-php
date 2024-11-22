@@ -6,15 +6,13 @@ namespace Lucasnpinheiro\Getnet;
 
 class TransactionPix extends Transaction
 {
-
     public function __construct(
         private string $sellerId,
         private int $amount,
         private string $currency,
         private ?string $orderId = null,
         private ?string $customerId = null
-    )
-    {
+    ) {
         parent::__construct($sellerId, $amount, $currency);
     }
 

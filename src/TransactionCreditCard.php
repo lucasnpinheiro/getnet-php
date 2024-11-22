@@ -15,10 +15,8 @@ class TransactionCreditCard extends Transaction
         private Credit $credit,
         private ?Device $device = null,
         private ?Shippings $shippings = null
-    )
-    {
+    ) {
         parent::__construct($sellerId, $amount, $currency);
-
     }
 
     public function jsonSerialize(): array
@@ -29,11 +27,11 @@ class TransactionCreditCard extends Transaction
             'credit' => $this->credit,
         ]);
 
-        if(!empty($this->device)){
+        if (!empty($this->device)) {
             $data['device'] = $this->device;
         }
 
-        if(!empty($this->shippings)){
+        if (!empty($this->shippings)) {
             $data['shippings'] = [$this->shippings];
         }
 

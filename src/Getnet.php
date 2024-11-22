@@ -19,8 +19,7 @@ class Getnet
         private string $clientSecret,
         private string $enviroment = Environment::SANDBOX,
         private bool $debug = false
-    )
-    {
+    ) {
         $this->setEnvironment($enviroment);
     }
 
@@ -78,8 +77,7 @@ class Getnet
 
     public function processTransaction(
         Transaction|TransactionCreditCard|TransactionDebitCard|TransactionBoleto|TransactionPix $transaction
-    ): string
-    {
+    ): string {
         $this->authenticate();
         $transactionTypeMap = [
             TransactionDebitCard::class => '/v1/payments/debit',

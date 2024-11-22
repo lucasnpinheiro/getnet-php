@@ -2,7 +2,6 @@
 
 namespace Lucasnpinheiro\Getnet\Tests\Unit;
 
-
 use Lucasnpinheiro\Getnet\Customer;
 use Lucasnpinheiro\Getnet\Debit;
 use Lucasnpinheiro\Getnet\Device;
@@ -23,7 +22,7 @@ class TransactionDebitCardTest extends TestCase
         $customer = $this->createMock(Customer::class);
         $debit = $this->createMock(Debit::class);
         $device = $this->createMock(Device::class);
-        $shippings =$this->createMock(Shippings::class);
+        $shippings = $this->createMock(Shippings::class);
         $subMerchant = $this->createMock(SubMerchant::class);
 
         $transaction = new TransactionDebitCard(
@@ -50,7 +49,7 @@ class TransactionDebitCardTest extends TestCase
         $customer = $this->createMock(Customer::class);
         $debit = $this->createMock(Debit::class);
         $device = $this->createMock(Device::class);
-        $shippings =$this->createMock(Shippings::class);
+        $shippings = $this->createMock(Shippings::class);
         $subMerchant = $this->createMock(SubMerchant::class);
 
         $transaction = new TransactionDebitCard(

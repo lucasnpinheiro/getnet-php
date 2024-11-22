@@ -20,16 +20,17 @@ class TransactionBoletoTest extends TestCase
         $order = new Order('order-id', 10.99, 'product-type');
         $boleto = new Boleto('document_number', 'expiration_date', 'instructions');
         $customer = new Customer(
-            'customer-id', new Address(
-            'street',
-            'number',
-            'complement',
-            'district',
-            'city',
-            'state',
-            'country',
-            'postalCode'
-        )
+            'customer-id',
+            new Address(
+                'street',
+                'number',
+                'complement',
+                'district',
+                'city',
+                'state',
+                'country',
+                'postalCode'
+            )
         );
 
         $transactionBoleto = new TransactionBoleto($sellerId, $amount, $currency, $order, $boleto, $customer);
@@ -45,16 +46,17 @@ class TransactionBoletoTest extends TestCase
         $order = new Order('order-id', 10.99, 'product-type');
         $boleto = new Boleto('document_number', 'expiration_date', 'instructions');
         $customer = new Customer(
-            'customer-id', new Address(
-            'street',
-            'number',
-            'complement',
-            'district',
-            'city',
-            'state',
-            'country',
-            'postalCode'
-        )
+            'customer-id',
+            new Address(
+                'street',
+                'number',
+                'complement',
+                'district',
+                'city',
+                'state',
+                'country',
+                'postalCode'
+            )
         );
 
         $transactionBoleto = new TransactionBoleto($sellerId, $amount, $currency, $order, $boleto, $customer);

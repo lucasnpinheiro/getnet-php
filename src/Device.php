@@ -8,7 +8,6 @@ use JsonSerializable;
 
 class Device implements JsonSerializable
 {
-
     public function __construct(
         private string $ipAddress,
         private string $deviceId,

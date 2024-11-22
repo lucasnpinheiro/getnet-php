@@ -21,7 +21,14 @@ class TransactionCreditCardTest extends TestCase
         $shippings = $this->createMock(Shippings::class);
 
         $transactionCard = new TransactionCreditCard(
-            'seller123', 1000, 'BRL', $order, $customer, $credit, $device, $shippings
+            'seller123',
+            1000,
+            'BRL',
+            $order,
+            $customer,
+            $credit,
+            $device,
+            $shippings
         );
 
         $expected = [

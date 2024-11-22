@@ -2,7 +2,6 @@
 
 namespace Lucasnpinheiro\Getnet\Tests\Unit;
 
-
 use Lucasnpinheiro\Getnet\Card;
 use Lucasnpinheiro\Getnet\Debit;
 use PHPUnit\Framework\TestCase;

@@ -8,7 +8,6 @@ use JsonSerializable;
 
 class Shippings implements JsonSerializable
 {
-
     public function __construct(
         private string $firstName,
         private string $name,
@@ -16,8 +15,7 @@ class Shippings implements JsonSerializable
         private string $phoneNumber,
         private float $shippingAmount,
         private Address $address
-    )
-    {
+    ) {
     }
 
     public function jsonSerialize(): array

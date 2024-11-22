@@ -8,7 +8,6 @@ use JsonSerializable;
 
 class SubMerchant implements JsonSerializable
 {
-
     public function __construct(
         private string $identificationCode,
         private string $documentType,
@@ -17,8 +16,7 @@ class SubMerchant implements JsonSerializable
         private string $city,
         private string $state,
         private string $postalCode
-    )
-    {
+    ) {
     }
 
     public function jsonSerialize(): array

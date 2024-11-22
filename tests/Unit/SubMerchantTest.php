@@ -2,7 +2,6 @@
 
 namespace Lucasnpinheiro\Getnet\Tests\Unit;
 
-
 use Lucasnpinheiro\Getnet\SubMerchant;
 use PHPUnit\Framework\TestCase;
 

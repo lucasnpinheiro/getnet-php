@@ -12,8 +12,7 @@ class Order implements JsonSerializable
         private string $orderId,
         private ?float $salesTax = null,
         private ?string $productType = null
-    )
-    {
+    ) {
     }
 
     public function jsonSerialize(): array

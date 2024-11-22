@@ -2,7 +2,6 @@
 
 namespace Lucasnpinheiro\Getnet\Tests\Unit;
 
-
 use Lucasnpinheiro\Getnet\Address;
 use Lucasnpinheiro\Getnet\Customer;
 use PHPUnit\Framework\TestCase;
