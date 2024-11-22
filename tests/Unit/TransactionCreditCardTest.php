@@ -7,10 +7,10 @@ use Lucasnpinheiro\Getnet\Customer;
 use Lucasnpinheiro\Getnet\Device;
 use Lucasnpinheiro\Getnet\Order;
 use Lucasnpinheiro\Getnet\Shippings;
-use Lucasnpinheiro\Getnet\TransactionCard;
+use Lucasnpinheiro\Getnet\TransactionCreditCard;
 use PHPUnit\Framework\TestCase;
 
-class TransactionCardTest extends TestCase
+class TransactionCreditCardTest extends TestCase
 {
     public function testTransactionCardSerializesCorrectly()
     {
@@ -20,7 +20,7 @@ class TransactionCardTest extends TestCase
         $device = $this->createMock(Device::class);
         $shippings = $this->createMock(Shippings::class);
 
-        $transactionCard = new TransactionCard(
+        $transactionCard = new TransactionCreditCard(
             'seller123', 1000, 'BRL', $order, $customer, $credit, $device, $shippings
         );
 
@@ -44,7 +44,7 @@ class TransactionCardTest extends TestCase
         $customer = $this->createMock(Customer::class);
         $credit = $this->createMock(Credit::class);
 
-        $transactionCard = new TransactionCard('seller123', 1000, 'BRL', $order, $customer, $credit);
+        $transactionCard = new TransactionCreditCard('seller123', 1000, 'BRL', $order, $customer, $credit);
 
         $expected = [
             'seller_id' => 'seller123',
@@ -65,7 +65,7 @@ class TransactionCardTest extends TestCase
         $credit = $this->createMock(Credit::class);
         $shippings = $this->createMock(Shippings::class);
 
-        $transactionCard = new TransactionCard('seller123', 1000, 'BRL', $order, $customer, $credit, null, $shippings);
+        $transactionCard = new TransactionCreditCard('seller123', 1000, 'BRL', $order, $customer, $credit, null, $shippings);
 
         $expected = [
             'seller_id' => 'seller123',
@@ -87,7 +87,7 @@ class TransactionCardTest extends TestCase
         $credit = $this->createMock(Credit::class);
         $device = $this->createMock(Device::class);
 
-        $transactionCard = new TransactionCard('seller123', 1000, 'BRL', $order, $customer, $credit, $device, null);
+        $transactionCard = new TransactionCreditCard('seller123', 1000, 'BRL', $order, $customer, $credit, $device, null);
 
         $expected = [
             'seller_id' => 'seller123',

@@ -5,12 +5,14 @@ declare(strict_types=1);
 namespace Lucasnpinheiro\Getnet;
 
 use GuzzleHttp\Client;
+use GuzzleHttp\ClientInterface;
 use InvalidArgumentException;
 
 class Getnet
 {
     private string $accessToken;
     private string $baseUrl;
+    private ClientInterface $httpClient;
 
     public function __construct(
         private string $clientId,
@@ -20,7 +22,6 @@ class Getnet
     )
     {
         $this->setEnvironment($enviroment);
-        $this->authenticate();
     }
 
 
@@ -31,7 +32,7 @@ class Getnet
             Environment::HOMOLOGATION => 'https://api-homologacao.getnet.com.br',
             Environment::PRODUCTION => 'https://api.getnet.com.br',
         ];
-        
+
         if (!isset($baseUrls[$environment])) {
             throw new InvalidArgumentException("Invalid value provided for 'environment'.");
         }
@@ -40,10 +41,13 @@ class Getnet
         $this->environment = $environment;
     }
 
+    public function setHttpClient(?ClientInterface $httpClient): void
+    {
+        $this->httpClient = $httpClient ?? new Client();
+    }
+
     private function authenticate(): void
     {
-        $httpClient = new Client();
-
         $authorizationHeader = $this->createAuthorizationHeader();
         $requestOptions = [
             'headers' => [
@@ -56,7 +60,7 @@ class Getnet
             ],
         ];
 
-        $response = $httpClient->request('POST', $this->baseUrl . '/auth/oauth/v2/token', $requestOptions);
+        $response = $this->httpClient->request('POST', $this->baseUrl . '/auth/oauth/v2/token', $requestOptions);
         $responseData = json_decode($response->getBody()->getContents(), true);
 
         if (!isset($responseData['access_token'])) {
@@ -72,11 +76,14 @@ class Getnet
         return 'Basic ' . base64_encode($credentials);
     }
 
-    public function processTransaction(Transaction|TransactionCard|TransactionBoleto|TransactionPix $transaction): string
+    public function processTransaction(
+        Transaction|TransactionCreditCard|TransactionDebitCard|TransactionBoleto|TransactionPix $transaction
+    ): string
     {
-        $httpClient = new \GuzzleHttp\Client();
+        $this->authenticate();
         $transactionTypeMap = [
-            TransactionCard::class => '/v1/payments/credit',
+            TransactionDebitCard::class => '/v1/payments/debit',
+            TransactionCreditCard::class => '/v1/payments/credit',
             TransactionBoleto::class => '/v1/payments/boleto',
             TransactionPix::class => '/v1/payments/qrcode/pix',
         ];
@@ -100,7 +107,7 @@ class Getnet
             $requestData['headers']['x-qrcode-expiration-time'] = $_ENV['PIX_TIMEOUT'] ?? 1800;
         }
 
-        $response = $httpClient->request('POST', $transactionUrl, $requestData);
+        $response = $this->httpClient->request('POST', $transactionUrl, $requestData);
         return $response->getBody()->getContents();
     }
 
@@ -109,8 +116,6 @@ class Getnet
         ?string $sellerId = null,
         ?string $customerId = null,
     ): string {
-        $client = new Client();
-
         $requestHeaders = [
             'Authorization' => "Bearer {$this->accessToken}",
             'Content-Type' => 'application/json; charset=utf-8',
@@ -128,7 +133,7 @@ class Getnet
             $requestData['customer_id'] = $customerId;
         }
 
-        $response = $client->request(
+        $response = $this->httpClient->request(
             'POST',
             "{$this->getBaseUrl()}/v1/tokens/card",
             [
