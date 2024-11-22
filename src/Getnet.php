@@ -116,6 +116,7 @@ class Getnet
         ?string $sellerId = null,
         ?string $customerId = null,
     ): string {
+        $this->authenticate();
         $requestHeaders = [
             'Authorization' => "Bearer {$this->accessToken}",
             'Content-Type' => 'application/json; charset=utf-8',

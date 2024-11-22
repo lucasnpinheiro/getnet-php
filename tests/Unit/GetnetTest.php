@@ -241,4 +241,33 @@ class GetnetTest extends TestCase
         $this->assertJson($result);
         $this->assertStringContainsString("WAITING", $result);
     }
+
+    public function testGetToken(): void
+    {
+        $mockResponse = new Response(
+            200,
+            ['Content-Type' => 'application/json'],
+            json_encode(['number_token' => 'mock_number_token'])
+        );
+
+        $mockHttpClient = $this->createMock(Client::class);
+        $mockHttpClient->method('request')->willReturnOnConsecutiveCalls(
+            new Response(
+                200,
+                ['Content-Type' => 'application/json'],
+                json_encode(['access_token' => 'mock_access_token'])
+            ),
+            $mockResponse
+        );
+
+        $this->getnet->setHttpClient($mockHttpClient);
+
+        $cardNumber = '4111111111111111';
+        $sellerId = 'seller-id';
+        $customerId = 'customer-id';
+
+        $result = $this->getnet->getToken($cardNumber, $sellerId, $customerId);
+        $this->assertJson($result);
+        $this->assertStringContainsString('mock_number_token', $result);
+    }
 }
