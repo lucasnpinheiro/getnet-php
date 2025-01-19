@@ -8,5 +8,5 @@ Para instalar a integração em seu projeto PHP, siga os passos abaixo:
 2. Execute o seguinte comando usando o Composer para instalar a integração:
 
 ```bash
-composer install lucasnpinheiro/getnet-php
+composer require lucasnpinheiro/getnet-php
 ```
