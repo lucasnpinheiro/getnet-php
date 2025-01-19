@@ -39,6 +39,7 @@
         "phpcbf": "phpcbf --standard=PSR12 --encoding=utf-8 -p --colors --report=code --ignore=*/vendor/* src tests"
     },
     "minimum-stability": "stable",
+    "prefer-stable": true,
     "config": {
         "optimize-autoloader": true,
         "sort-packages": true
