@@ -109,6 +109,26 @@ class Getnet
         return $response->getBody()->getContents();
     }
 
+    public function processResponse(string $paymentId, string $type): string
+    {
+        $this->authenticate();
+        $responseTypeMap = [
+            Type::PIX => '/v1/payments/qrcode/{payment_id}',
+        ];
+
+        $transactionUrl = $this->getBaseUrl() . $responseTypeMap[$type];
+        $transactionUrl = str_replace('{payment_id}', $paymentId, $transactionUrl);
+        $requestData = [
+            'headers' => [
+                'Authorization' => "Bearer {$this->accessToken}",
+                'Content-Type' => 'application/json; charset=utf-8',
+            ]
+        ];
+
+        $response = $this->httpClient->request('GET', $transactionUrl, $requestData);
+        return $response->getBody()->getContents();
+    }
+
     public function getToken(
         string $cardNumber,
         ?string $sellerId = null,

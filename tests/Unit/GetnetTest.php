@@ -2,6 +2,7 @@
 
 namespace Lucasnpinheiro\Getnet\Tests\Unit;
 
+use Exception;
 use GuzzleHttp\Client;
 use GuzzleHttp\Psr7\Response;
 use Lucasnpinheiro\Getnet\Address;
@@ -15,6 +16,7 @@ use Lucasnpinheiro\Getnet\Order;
 use Lucasnpinheiro\Getnet\TransactionCreditCard;
 use Lucasnpinheiro\Getnet\TransactionDebitCard;
 use Lucasnpinheiro\Getnet\TransactionPix;
+use Lucasnpinheiro\Getnet\Type;
 use PHPUnit\Framework\TestCase;
 
 class GetnetTest extends TestCase
@@ -270,4 +272,51 @@ class GetnetTest extends TestCase
         $this->assertJson($result);
         $this->assertStringContainsString('mock_number_token', $result);
     }
+
+    public function testAuthenticateFailure(): void
+    {
+        $mockHttpClient = $this->createMock(Client::class);
+        $mockHttpClient->method('request')->willReturn(
+            new Response(401, ['Content-Type' => 'application/json'], json_encode(['error' => 'invalid_client']))
+        );
+
+        $this->getnet->setHttpClient($mockHttpClient);
+
+        $this->expectException(Exception::class);
+        $this->expectExceptionMessage('Failed to generate access token');
+        $this->getnet->getToken('4111111111111111');
+    }
+
+
+    public function testProcessResponse(): void
+    {
+        $mockResponse = new Response(
+            200,
+            ['Content-Type' => 'application/json'],
+            json_encode([
+                'payment_id' => '1a938e0d-26ab-4ac2-b263-ab46a99e4356',
+                'status' => 'APPROVED',
+            ])
+        );
+
+        $mockHttpClient = $this->createMock(Client::class);
+        $mockHttpClient->method('request')
+            ->willReturnOnConsecutiveCalls(
+                new Response(
+                    200,
+                    ['Content-Type' => 'application/json'],
+                    json_encode(['access_token' => 'mock_access_token'])
+                ),
+                $mockResponse
+            );
+
+        $this->getnet->setHttpClient($mockHttpClient);
+
+        $result = $this->getnet->processResponse('1a938e0d-26ab-4ac2-b263-ab46a99e4356', Type::PIX);
+        $this->assertJson($result);
+        $resultData = json_decode($result, true);
+        $this->assertEquals('APPROVED', $resultData['status']);
+        $this->assertEquals('1a938e0d-26ab-4ac2-b263-ab46a99e4356', $resultData['payment_id']);
+    }
+
 }
