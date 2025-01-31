@@ -4,9 +4,12 @@ declare(strict_types=1);
 
 namespace Lucasnpinheiro\Getnet;
 
+use Exception;
 use GuzzleHttp\Client;
 use GuzzleHttp\ClientInterface;
 use InvalidArgumentException;
+use stdClass;
+use Throwable;
 
 class Getnet
 {
@@ -18,9 +21,11 @@ class Getnet
         private string $clientId,
         private string $clientSecret,
         private string $enviroment = Environment::SANDBOX,
-        private bool $debug = false
+        private bool $debug = false,
+        ?ClientInterface $httpClient = null // Adicionando parâmetro opcional
     ) {
         $this->setEnvironment($enviroment);
+        $this->httpClient = $httpClient ?? new Client(); // Inicializa o HTTP client caso seja null
     }
 
 
@@ -47,6 +52,10 @@ class Getnet
 
     private function authenticate(): void
     {
+        if (!isset($this->httpClient)) {
+            $this->setHttpClient(null); // Garante a inicialização
+        }
+
         $authorizationHeader = $this->createAuthorizationHeader();
         $requestOptions = [
             'headers' => [
@@ -57,17 +66,32 @@ class Getnet
                 'scope' => 'oob',
                 'grant_type' => 'client_credentials',
             ],
+            'verify' => false
         ];
 
+        try {
         $response = $this->httpClient->request('POST', $this->baseUrl . '/auth/oauth/v2/token', $requestOptions);
-        $responseData = json_decode($response->getBody()->getContents(), true);
 
-        if (!isset($responseData['access_token'])) {
-            throw new \Exception('Failed to generate access token');
+            if ($response->getStatusCode() !== 200) {
+                throw new Exception("Authentication failed with status code: " . $response->getStatusCode());
+            }
+
+            $responseData = json_decode($response->getBody()->getContents(), true);
+
+            if ($this->debug) {
+                error_log('Authentication response: ' . print_r($responseData, true));
+            }
+
+            if (!isset($responseData['access_token'])) {
+                throw new Exception('Failed to generate access token. Response: ' . json_encode($responseData));
         }
 
         $this->accessToken = $responseData['access_token'];
+        } catch (Throwable $th) {
+            throw new Exception("Authentication error: " . trim(str_replace("\n", ' ', $th->getMessage())));
     }
+    }
+
 
     private function createAuthorizationHeader(): string
     {
@@ -77,7 +101,7 @@ class Getnet
 
     public function processTransaction(
         Transaction|TransactionCreditCard|TransactionDebitCard|TransactionBoleto|TransactionPix $transaction
-    ): string {
+    ): stdClass {
         $this->authenticate();
         $transactionTypeMap = [
             TransactionDebitCard::class => '/v1/payments/debit',
@@ -105,11 +129,15 @@ class Getnet
             $requestData['headers']['x-qrcode-expiration-time'] = $_ENV['PIX_TIMEOUT'] ?? 1800;
         }
 
-        $response = $this->httpClient->request('POST', $transactionUrl, $requestData);
-        return $response->getBody()->getContents();
+        try {
+            $response = $this->httpClient->request('POST', $transactionUrl, $requestData);
+            return json_decode($response->getBody()->getContents());
+        } catch (Throwable $th) {
+            throw new Exception($th->getMessage());
+        }
     }
 
-    public function processResponse(string $paymentId, string $type): string
+    public function processResponse(string $paymentId, string $type): stdClass
     {
         $this->authenticate();
         $responseTypeMap = [
@@ -124,16 +152,19 @@ class Getnet
                 'Content-Type' => 'application/json; charset=utf-8',
             ]
         ];
-
+        try {
         $response = $this->httpClient->request('GET', $transactionUrl, $requestData);
-        return $response->getBody()->getContents();
+            return json_decode($response->getBody()->getContents());
+        } catch (Throwable $th) {
+            throw new Exception($th->getMessage());
+        }
     }
 
     public function getToken(
-        string $cardNumber,
+        Card $card,
         ?string $sellerId = null,
         ?string $customerId = null,
-    ): string {
+    ): Card {
         $this->authenticate();
         $requestHeaders = [
             'Authorization' => "Bearer {$this->accessToken}",
@@ -145,13 +176,14 @@ class Getnet
         }
 
         $requestData = [
-            'card_number' => $cardNumber,
+            'card_number' => $card->numberToken(),
         ];
 
         if ($customerId !== null) {
             $requestData['customer_id'] = $customerId;
         }
 
+        try {
         $response = $this->httpClient->request(
             'POST',
             "{$this->getBaseUrl()}/v1/tokens/card",
@@ -162,7 +194,49 @@ class Getnet
             ],
         );
 
-        return $response->getBody()->getContents();
+            $content = $response->getBody()->getContents();
+
+            $card->updateNumberToken(json_decode($content, true)['number_token']);
+
+            return $card;
+        } catch (Throwable $th) {
+            throw new Exception($th->getMessage());
+        }
+    }
+
+    public function tokenizeCard(string $cardNumber, ?string $customerId = null): string
+    {
+        $this->authenticate();
+
+        try {
+            $requestData = [
+                'headers' => [
+                    'Authorization' => "Bearer {$this->accessToken}",
+                    'Content-Type' => 'application/json; charset=utf-8',
+                ],
+                'json' => array_filter([
+                    'card_number' => $cardNumber,
+                    'customer_id' => $customerId,
+                ]),
+                'verify' => false
+            ];
+
+            $response = $this->httpClient->request(
+                'POST',
+                $this->baseUrl . '/v1/tokens/card',
+                $requestData
+            );
+
+            $responseData = json_decode($response->getBody()->getContents(), true);
+
+            if (!isset($responseData['number_token'])) {
+                throw new Exception('Failed to generate card token. Response: ' . json_encode($responseData));
+            }
+
+            return $responseData['number_token'];
+        } catch (Throwable $th) {
+            throw new Exception('Card tokenization error: ' . $th->getMessage());
+        }
     }
 
     public function getBaseUrl(): string

@@ -34,4 +34,14 @@ class Card implements JsonSerializable
 
         return $data;
     }
+
+    public function numberToken(): string
+    {
+        return $this->numberToken;
+    }
+
+    public function updateNumberToken(string $token): void
+    {
+        $this->numberToken = $token;
+    }
 }

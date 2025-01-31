@@ -30,4 +30,9 @@ class Order implements JsonSerializable
 
         return $order;
     }
+
+    public function orderId(): string
+    {
+        return $this->orderId;
+    }
 }

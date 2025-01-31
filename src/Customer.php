@@ -40,4 +40,14 @@ class Customer implements JsonSerializable
 
         return $data;
     }
+
+    public function address(): Address
+    {
+        return $this->billingAddress;
+    }
+
+    public function customerId(): string
+    {
+        return $this->customerId;
+    }
 }

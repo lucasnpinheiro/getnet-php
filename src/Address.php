@@ -11,7 +11,7 @@ class Address implements JsonSerializable
     public function __construct(
         private string $street,
         private string $number,
-        private string $complement,
+        private ?string $complement,
         private string $district,
         private string $city,
         private string $state,

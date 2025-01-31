@@ -35,6 +35,9 @@
     ],
     "scripts": {
         "test": "XDEBUG_MODE=coverage phpunit --configuration phpunit.xml",
+        "test:unit": "XDEBUG_MODE=coverage phpunit --configuration phpunit.xml --testsuite Unit",
+        "test:integration": "XDEBUG_MODE=coverage phpunit --configuration phpunit.xml --testsuite Integration",
+        "test:coverage": "XDEBUG_MODE=coverage phpunit --configuration phpunit.xml --coverage-html tests/reports/coverage",
         "phpcs": "phpcs --standard=PSR12 --encoding=utf-8 -p --colors --report=code --ignore=*/vendor/* src tests",
         "phpcbf": "phpcbf --standard=PSR12 --encoding=utf-8 -p --colors --report=code --ignore=*/vendor/* src tests"
     },

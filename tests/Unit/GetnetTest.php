@@ -5,6 +5,7 @@ namespace Lucasnpinheiro\Getnet\Tests\Unit;
 use Exception;
 use GuzzleHttp\Client;
 use GuzzleHttp\Psr7\Response;
+use InvalidArgumentException;
 use Lucasnpinheiro\Getnet\Address;
 use Lucasnpinheiro\Getnet\Card;
 use Lucasnpinheiro\Getnet\Credit;
@@ -13,17 +14,19 @@ use Lucasnpinheiro\Getnet\Debit;
 use Lucasnpinheiro\Getnet\Environment;
 use Lucasnpinheiro\Getnet\Getnet;
 use Lucasnpinheiro\Getnet\Order;
+use Lucasnpinheiro\Getnet\Transaction;
 use Lucasnpinheiro\Getnet\TransactionCreditCard;
 use Lucasnpinheiro\Getnet\TransactionDebitCard;
 use Lucasnpinheiro\Getnet\TransactionPix;
 use Lucasnpinheiro\Getnet\Type;
 use PHPUnit\Framework\TestCase;
+use ReflectionClass;
 
 class GetnetTest extends TestCase
 {
     private Getnet $getnet;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $mockTokenResponse = new Response(
             200,
@@ -46,17 +49,32 @@ class GetnetTest extends TestCase
 
     public function testProcessCreditCardTransaction(): void
     {
+        $responseData = [
+            "payment_id" => "06f256c8-1bbf-42bf-93b4-ce2041bfb87e",
+            "seller_id" => "1234567",
+            "amount" => 100,
+            "currency" => "BRL",
+            "order_id" => "123456",
+            "status" => "APPROVED",
+            "received_at" => "2023-01-01T10:00:00",
+            "credit" => [
+                "delayed" => false,
+                "authorization_code" => "123456",
+                "authorized_at" => "2023-01-01T10:00:00",
+                "reason_code" => 0,
+                "reason_message" => "transaction approved",
+                "acquirer" => "GETNET",
+                "soft_descriptor" => "Description",
+                "brand" => "Visa",
+                "terminal_nsu" => "123456",
+                "acquirer_transaction_id" => "123456789"
+            ]
+        ];
+
         $mockResponse = new Response(
             200,
             ['Content-Type' => 'application/json'],
-            json_encode([
-                "payment_id" => "06f256c8-1bbf-42bf-93b4-ce2041bfb87e",
-                "status" => "APPROVED",
-                "credit" => [
-                    "authorization_code" => 99999,
-                    "reason_message" => "transaction approved"
-                ]
-            ])
+            json_encode($responseData)
         );
 
         $mockHttpClient = $this->createMock(Client::class);
@@ -71,67 +89,84 @@ class GetnetTest extends TestCase
 
         $this->getnet->setHttpClient($mockHttpClient);
 
-        $orderId = 'order-id';
-        $salesTax = 10.99;
-        $productType = 'product-type';
-
-        $order = new Order($orderId, $salesTax, $productType);
-        $customerId = 'customer-id';
-        $billingAddress = new Address(
-            'street',
-            'number',
-            'complement',
-            'district',
-            'city',
-            'state',
-            'country',
-            'postalCode'
-        );
-        $customer = new Customer($customerId, $billingAddress);
-
+        $order = new Order('123456');
         $card = new Card(
-            numberToken: 'numberToken',
-            cardholderName: 'cardholderName',
-            securityCode: 'securityCode',
-            expirationMonth: 'expirationMonth',
-            expirationYear: 'expirationYear',
+            'numberToken123',
+            'John Doe',
+            '123',
+            '12',
+            '2025'
         );
         $credit = new Credit(
-            delayed: false,
-            preAuthorization: false,
-            saveCardData: false,
-            transactionType: 'type',
-            numberInstallments: 1,
-            card: $card,
+            false,
+            false,
+            false,
+            'FULL',
+            1,
+            $card
         );
 
-        $creditTransaction = new TransactionCreditCard(
-            sellerId: "6eb2412c-165a-41cd-b1d9-76c575d70a28",
-            amount: 100,
-            currency: "BRL",
-            order: $order,
-            customer: $customer,
-            credit: $credit
+        $billingAddress = new Address(
+            'Rua Example',
+            '123',
+            'Apto 1',
+            'Centro',
+            'São Paulo',
+            'SP',
+            'Brasil',
+            '01234-567'
         );
 
-        $result = $this->getnet->processTransaction($creditTransaction);
-        $this->assertJson($result);
-        $this->assertStringContainsString("APPROVED", $result);
+        $customer = new Customer(
+            'customer123',
+            $billingAddress,
+            'John',
+            'Doe',
+            'John Doe',
+            'john@example.com',
+            'CPF',
+            '12345678901',
+            '11999887766'
+        );
+
+        $transaction = new TransactionCreditCard(
+            '1234567',
+            100,
+            'BRL',
+            $order,
+            $customer,
+            $credit
+        );
+
+        $result = $this->getnet->processTransaction($transaction);
+        $this->assertEquals($responseData['payment_id'], $result->payment_id);
+        $this->assertEquals($responseData['status'], $result->status);
     }
 
     public function testProcessDebitCardTransaction(): void
     {
+        $responseData = [
+            "payment_id" => "06f256c8-1bbf-42bf-93b4-ce2041bfb87e",
+            "seller_id" => "1234567",
+            "amount" => 100,
+            "currency" => "BRL",
+            "order_id" => "123456",
+            "status" => "APPROVED",
+            "debit" => [
+                "authorization_code" => "123456",
+                "authorized_at" => "2023-01-01T10:00:00",
+                "reason_code" => 0,
+                "reason_message" => "transaction approved",
+                "brand" => "Visa",
+                "terminal_nsu" => "123456",
+                "acquirer_transaction_id" => "123456789"
+            ]
+        ];
+
         $mockResponse = new Response(
             200,
             ['Content-Type' => 'application/json'],
-            json_encode([
-                "payment_id" => "06f256c8-1bbf-42bf-93b4-ce2041bfb87e",
-                "status" => "APPROVED",
-                "credit" => [
-                    "authorization_code" => 99999,
-                    "reason_message" => "transaction approved"
-                ]
-            ])
+            json_encode($responseData)
         );
 
         $mockHttpClient = $this->createMock(Client::class);
@@ -146,72 +181,80 @@ class GetnetTest extends TestCase
 
         $this->getnet->setHttpClient($mockHttpClient);
 
-        $orderId = 'order-id';
-        $salesTax = 10.99;
-        $productType = 'product-type';
-
-        $order = new Order($orderId, $salesTax, $productType);
-        $customerId = 'customer-id';
-        $billingAddress = new Address(
-            'street',
-            'number',
-            'complement',
-            'district',
-            'city',
-            'state',
-            'country',
-            'postalCode'
-        );
-        $customer = new Customer($customerId, $billingAddress);
-
+        $order = new Order('123456');
         $card = new Card(
-            numberToken: 'numberToken',
-            cardholderName: 'cardholderName',
-            securityCode: 123,
-            expirationMonth: '12',
-            expirationYear: '24',
+            'numberToken123',
+            'John Doe',
+            '123',
+            '12',
+            '2025'
         );
-
         $debit = new Debit(
-            cardholderMobile: 'cardholderMobile',
-            dynamicMcc: 123,
-            authenticated: true,
-            card: $card,
-            credentialsOnFileType: 'ONE_CLICK',
+            '11999887766',
+            123,
+            true,
+            $card
         );
 
-
-        $debitTransaction = new TransactionDebitCard(
-            sellerId: "6eb2412c-165a-41cd-b1d9-76c575d70a28",
-            amount: 100,
-            currency: "BRL",
-            order: $order,
-            customer: $customer,
-            debit: $debit
+        $billingAddress = new Address(
+            'Rua Example',
+            '123',
+            'Apto 1',
+            'Centro',
+            'São Paulo',
+            'SP',
+            'Brasil',
+            '01234-567'
         );
 
-        $result = $this->getnet->processTransaction($debitTransaction);
-        $this->assertJson($result);
-        $this->assertStringContainsString("APPROVED", $result);
+        $customer = new Customer(
+            'customer123',
+            $billingAddress,
+            'John',
+            'Doe',
+            'John Doe',
+            'john@example.com',
+            'CPF',
+            '12345678901',
+            '11999887766'
+        );
+
+        $transaction = new TransactionDebitCard(
+            '1234567',
+            100,
+            'BRL',
+            $order,
+            $customer,
+            $debit
+        );
+
+        $result = $this->getnet->processTransaction($transaction);
+        $this->assertEquals($responseData['payment_id'], $result->payment_id);
+        $this->assertEquals($responseData['status'], $result->status);
     }
 
     public function testProcessPixTransaction(): void
     {
+        $responseData = [
+            "payment_id" => "06f256c8-1bbf-42bf-93b4-ce2041bfb87e",
+            "seller_id" => "1234567",
+            "amount" => 100,
+            "currency" => "BRL",
+            "order_id" => "123456",
+            "status" => "PENDING",
+            "pix" => [
+                "qr_code" => "00020101021226870014br.gov.bcb.pix2565qrcodes-pix.gerencianet.com.br/v2/2359a5f27578-4d89-8503-f078132c8c4b52040000530398654041.005802BR5925EMPRESA TESTE 6014BELO HORIZONTE62070503***6304E2CA",
+                "expiration_date" => "2023-01-01T10:30:00",
+                "additional_information" => [
+                    "transaction_id" => "123456789"
+                ]
+            ]
+        ];
+
         $mockResponse = new Response(
             200,
             ['Content-Type' => 'application/json'],
-            json_encode([
-                "payment_id" => "1a938e0d-26ab-4ac2-b263-ab46a99e4356",
-                "status" => "WAITING",
-                "description" => "QR Code gerado com sucesso e aguardando o pagamento.",
-                "additional_data" => [
-                    "transaction_id" => "8289874875871543653292342",
-                    "qr_code" => "00020101021226740014br.gov.bcb.pix210812345678220412342308123456782420001122334455 667788995204000053039865406123.455802BR5913FULANO DE TAL6008BRASILIA62190515RP12345678- 201980720014br.gov.bcb.pix2550bx.com.br/spi/U0VHUkVET1RPVEFMTUVOVEVBTEVBVE9SSU8=63 0434D1",
-                    "creation_date_qrcode" => "2021-02-14T17:50:12Z",
-                    "expiration_date_qrcode" => "2021-02-14T17:51:52Z",
-                    "psp_code" => "033"
-                ]
-            ])
+            json_encode($responseData)
         );
 
         $mockHttpClient = $this->createMock(Client::class);
@@ -226,30 +269,29 @@ class GetnetTest extends TestCase
 
         $this->getnet->setHttpClient($mockHttpClient);
 
-        $orderId = 'order-id';
-        $sellerId = 'seller-id';
-        $amount = 10.99;
-        $customerId = 'customer-id';
-
-        $debitTransaction = new TransactionPix(
-            sellerId: $sellerId,
-            amount: $amount,
-            currency: 'BRL',
-            orderId: $orderId,
-            customerId: $customerId
+        $transaction = new TransactionPix(
+            '1234567',
+            100,
+            'BRL',
+            '123456',
+            'customer123'
         );
 
-        $result = $this->getnet->processTransaction($debitTransaction);
-        $this->assertJson($result);
-        $this->assertStringContainsString("WAITING", $result);
+        $result = $this->getnet->processTransaction($transaction);
+        $this->assertEquals($responseData['payment_id'], $result->payment_id);
+        $this->assertEquals($responseData['status'], $result->status);
     }
 
     public function testGetToken(): void
     {
+        $responseData = [
+            'number_token' => 'dfe05208b105578c070f806c80abd3af09e246827d29b866cf4ce16c205849977c9496cbf0d0234f42339937f327747075f68763537b90b31389e01231d4d13c'
+        ];
+
         $mockResponse = new Response(
             200,
             ['Content-Type' => 'application/json'],
-            json_encode(['number_token' => 'mock_number_token'])
+            json_encode($responseData)
         );
 
         $mockHttpClient = $this->createMock(Client::class);
@@ -264,59 +306,142 @@ class GetnetTest extends TestCase
 
         $this->getnet->setHttpClient($mockHttpClient);
 
-        $cardNumber = '4111111111111111';
-        $sellerId = 'seller-id';
-        $customerId = 'customer-id';
+        $card = new Card(
+            '5155901222280001',
+            'John Doe',
+            '123',
+            '12',
+            '2025'
+        );
 
-        $result = $this->getnet->getToken($cardNumber, $sellerId, $customerId);
-        $this->assertJson($result);
-        $this->assertStringContainsString('mock_number_token', $result);
+        $result = $this->getnet->getToken($card);
+        $this->assertEquals($responseData['number_token'], $result->numberToken());
     }
 
-    public function testAuthenticateFailure(): void
+    public function testAuthenticationFailure(): void
     {
-        $mockHttpClient = $this->createMock(Client::class);
-        $mockHttpClient->method('request')->willReturn(
-            new Response(401, ['Content-Type' => 'application/json'], json_encode(['error' => 'invalid_client']))
+        $mockResponse = new Response(
+            200,
+            ['Content-Type' => 'application/json'],
+            json_encode(['error' => 'invalid_client'])
         );
+
+        $mockHttpClient = $this->createMock(Client::class);
+        $mockHttpClient->method('request')->willReturn($mockResponse);
 
         $this->getnet->setHttpClient($mockHttpClient);
 
         $this->expectException(Exception::class);
         $this->expectExceptionMessage('Failed to generate access token');
-        $this->getnet->getToken('4111111111111111');
-    }
 
+        $reflection = new ReflectionClass($this->getnet);
+        $method = $reflection->getMethod('authenticate');
+        $method->setAccessible(true);
+        $method->invoke($this->getnet);
+    }
 
     public function testProcessResponse(): void
     {
+        $responseData = [
+            'payment_id' => '1a938e0d-26ab-4ac2-b263-ab46a99e4356',
+            'status' => 'PENDING'
+        ];
+
         $mockResponse = new Response(
             200,
             ['Content-Type' => 'application/json'],
-            json_encode([
-                'payment_id' => '1a938e0d-26ab-4ac2-b263-ab46a99e4356',
-                'status' => 'APPROVED',
-            ])
+            json_encode($responseData)
         );
 
         $mockHttpClient = $this->createMock(Client::class);
-        $mockHttpClient->method('request')
-            ->willReturnOnConsecutiveCalls(
-                new Response(
-                    200,
-                    ['Content-Type' => 'application/json'],
-                    json_encode(['access_token' => 'mock_access_token'])
-                ),
-                $mockResponse
-            );
+        $mockHttpClient->method('request')->willReturnOnConsecutiveCalls(
+            new Response(
+                200,
+                ['Content-Type' => 'application/json'],
+                json_encode(['access_token' => 'mock_access_token'])
+            ),
+            $mockResponse
+        );
 
         $this->getnet->setHttpClient($mockHttpClient);
 
         $result = $this->getnet->processResponse('1a938e0d-26ab-4ac2-b263-ab46a99e4356', Type::PIX);
-        $this->assertJson($result);
-        $resultData = json_decode($result, true);
-        $this->assertEquals('APPROVED', $resultData['status']);
-        $this->assertEquals('1a938e0d-26ab-4ac2-b263-ab46a99e4356', $resultData['payment_id']);
+        $this->assertEquals($responseData['payment_id'], $result->payment_id);
+        $this->assertEquals($responseData['status'], $result->status);
     }
 
+    /**
+     * @dataProvider environmentDataProvider
+     */
+    public function testEnvironmentUrls(string $environment, string $expectedBaseUrl): void
+    {
+        $getnet = new Getnet(
+            'client_id',
+            'client_secret',
+            $environment
+        );
+
+        $reflection = new ReflectionClass($getnet);
+        $property = $reflection->getProperty('baseUrl');
+        $this->assertEquals($expectedBaseUrl, $property->getValue($getnet));
+    }
+
+    public function environmentDataProvider(): array
+    {
+        return [
+            'sandbox' => [
+                Environment::SANDBOX,
+                'https://api-sandbox.getnet.com.br'
+            ],
+            'homologation' => [
+                Environment::HOMOLOGATION,
+                'https://api-homologacao.getnet.com.br'
+            ],
+            'production' => [
+                Environment::PRODUCTION,
+                'https://api.getnet.com.br'
+            ]
+        ];
+    }
+
+    public function testInvalidEnvironment(): void
+    {
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage("Invalid value provided for 'environment'.");
+
+        new Getnet(
+            'client_id',
+            'client_secret',
+            'invalid_environment'
+        );
+    }
+
+    public function testCreateAuthorizationHeader(): void
+    {
+        $getnet = new Getnet(
+            'test_client_id',
+            'test_client_secret',
+            Environment::SANDBOX
+        );
+
+        $reflection = new ReflectionClass($getnet);
+        $method = $reflection->getMethod('createAuthorizationHeader');
+        $method->setAccessible(true);
+        $expectedHeader = 'Basic ' . base64_encode('test_client_id:test_client_secret');
+        $this->assertEquals($expectedHeader, $method->invoke($getnet));
+    }
+
+    public function testInvalidTransactionType(): void
+    {
+        $transaction = new Transaction(
+            'seller123',
+            100,
+            'BRL'
+        );
+
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage('Invalid transaction type provided.');
+
+        $this->getnet->processTransaction($transaction);
+    }
 }

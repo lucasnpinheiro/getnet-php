@@ -32,7 +32,13 @@ class DebitTest extends TestCase
             'cardholder_mobile' => 'cardholderMobile',
             'dynamic_mcc' => 123,
             'authenticated' => true,
-            'card' => $card,
+            'card' => [
+                'number_token' => 'numberToken',
+                'cardholder_name' => 'cardholderName',
+                'security_code' => 'securityCode',
+                'expiration_month' => 'expirationMonth',
+                'expiration_year' => 'expirationYear',
+            ],
             'credentials_on_file_type' => 'ONE_CLICK',
             'transaction_id' => 'transactionId',
             'soft_descriptor' => 'softDescriptor',
@@ -46,7 +52,7 @@ class DebitTest extends TestCase
         $card = new Card(
             numberToken: 'numberToken',
             cardholderName: 'cardholderName',
-            securityCode: 123,
+            securityCode: '123',
             expirationMonth: '12',
             expirationYear: '24',
         );
@@ -63,7 +69,13 @@ class DebitTest extends TestCase
             'cardholder_mobile' => 'cardholderMobile',
             'dynamic_mcc' => 123,
             'authenticated' => true,
-            'card' => $card,
+            'card' => [
+                'number_token' => 'numberToken',
+                'cardholder_name' => 'cardholderName',
+                'security_code' => '123',
+                'expiration_month' => '12',
+                'expiration_year' => '24',
+            ],
             'credentials_on_file_type' => 'ONE_CLICK',
         ];
 

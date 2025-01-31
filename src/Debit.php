@@ -25,7 +25,7 @@ class Debit implements JsonSerializable
             'cardholder_mobile' => $this->cardholderMobile,
             'dynamic_mcc' => $this->dynamicMcc,
             'authenticated' => $this->authenticated,
-            'card' => $this->card,
+            'card' => $this->card->jsonSerialize(),
             'credentials_on_file_type' => $this->credentialsOnFileType,
         ];
 
