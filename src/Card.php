@@ -35,13 +35,39 @@ class Card implements JsonSerializable
         return $data;
     }
 
+    public function updateNumberToken(string $token): void
+    {
+        $this->numberToken = $token;
+    }
+
     public function numberToken(): string
     {
         return $this->numberToken;
     }
 
-    public function updateNumberToken(string $token): void
+    public function cardholderName(): string
     {
-        $this->numberToken = $token;
+        return $this->cardholderName;
     }
+
+    public function securityCode(): string
+    {
+        return $this->securityCode;
+    }
+
+    public function expirationMonth(): string
+    {
+        return $this->expirationMonth;
+    }
+
+    public function expirationYear(): string
+    {
+        return $this->expirationYear;
+    }
+
+    public function brand(): ?string
+    {
+        return $this->brand;
+    }
+
 }

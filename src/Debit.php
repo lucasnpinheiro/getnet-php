@@ -36,4 +36,39 @@ class Debit implements JsonSerializable
 
         return $data;
     }
+
+    public function cardholderMobile(): string
+    {
+        return $this->cardholderMobile;
+    }
+
+    public function dynamicMcc(): int
+    {
+        return $this->dynamicMcc;
+    }
+
+    public function authenticated(): bool
+    {
+        return $this->authenticated;
+    }
+
+    public function card(): Card
+    {
+        return $this->card;
+    }
+
+    public function credentialsOnFileType(): string
+    {
+        return $this->credentialsOnFileType;
+    }
+
+    public function transactionId(): ?string
+    {
+        return $this->transactionId;
+    }
+
+    public function softDescriptor(): ?string
+    {
+        return $this->softDescriptor;
+    }
 }

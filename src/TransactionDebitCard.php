@@ -36,4 +36,49 @@ class TransactionDebitCard extends Transaction
 
         return $data;
     }
+
+    public function order(): Order
+    {
+        return $this->order;
+    }
+
+    public function customer(): Customer
+    {
+        return $this->customer;
+    }
+
+    public function debit(): Debit
+    {
+        return $this->debit;
+    }
+
+    public function device(): ?Device
+    {
+        return $this->device;
+    }
+
+    public function shippings(): ?Shippings
+    {
+        return $this->shippings;
+    }
+
+    public function subMerchant(): ?SubMerchant
+    {
+        return $this->subMerchant;
+    }
+
+    public function sellerId(): string
+    {
+        return $this->sellerId;
+    }
+
+    public function amount(): int
+    {
+        return $this->amount;
+    }
+
+    public function currency(): string
+    {
+        return $this->currency;
+    }
 }

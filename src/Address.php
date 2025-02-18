@@ -33,4 +33,44 @@ class Address implements JsonSerializable
             'postal_code' => $this->postalCode
         ];
     }
+
+    public function street(): string
+    {
+        return $this->street;
+    }
+
+    public function number(): string
+    {
+        return $this->number;
+    }
+
+    public function complement(): ?string
+    {
+        return $this->complement;
+    }
+
+    public function district(): string
+    {
+        return $this->district;
+    }
+
+    public function city(): string
+    {
+        return $this->city;
+    }
+
+    public function state(): string
+    {
+        return $this->state;
+    }
+
+    public function country(): string
+    {
+        return $this->country;
+    }
+
+    public function postalCode(): string
+    {
+        return $this->postalCode;
+    }
 }

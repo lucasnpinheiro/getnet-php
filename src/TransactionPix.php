@@ -21,7 +21,7 @@ class TransactionPix extends Transaction
         $data = [
             'amount' => $this->amount,
             'currency' => $this->currency,
-            'seller_id' => $this->getSellerId()
+            'seller_id' => $this->sellerId()
         ];
 
         if ($this->orderId) {
@@ -34,8 +34,29 @@ class TransactionPix extends Transaction
         return $data;
     }
 
-    public function getSellerId(): string
+
+    public function orderId(): ?string
+    {
+        return $this->orderId;
+    }
+
+    public function customerId(): ?string
+    {
+        return $this->customerId;
+    }
+
+    public function sellerId(): string
     {
         return $this->sellerId;
+    }
+
+    public function amount(): int
+    {
+        return $this->amount;
+    }
+
+    public function currency(): string
+    {
+        return $this->currency;
     }
 }

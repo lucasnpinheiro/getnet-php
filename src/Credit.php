@@ -42,4 +42,55 @@ class Credit implements JsonSerializable
 
         return $data;
     }
+
+    public function delayed(): bool
+    {
+        return $this->delayed;
+    }
+
+    public function preAuthorization(): bool
+    {
+        return $this->preAuthorization;
+    }
+
+    public function saveCardData(): bool
+    {
+        return $this->saveCardData;
+    }
+
+    public function transactionType(): string
+    {
+        return $this->transactionType;
+    }
+
+    public function numberInstallments(): int
+    {
+        return $this->numberInstallments;
+    }
+
+    public function card(): Card
+    {
+        return $this->card;
+    }
+
+    public function softDescriptor(): ?string
+    {
+        return $this->softDescriptor;
+    }
+
+    public function dynamicMcc(): ?int
+    {
+        return $this->dynamicMcc;
+    }
+
+    public function credentialsOnFileType(): ?string
+    {
+        return $this->credentialsOnFileType;
+    }
+
+    public function transactionId(): ?string
+    {
+        return $this->transactionId;
+    }
+
 }

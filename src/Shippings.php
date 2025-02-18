@@ -29,4 +29,35 @@ class Shippings implements JsonSerializable
             'address' => $this->address,
         ];
     }
+
+    public function firstName(): string
+    {
+        return $this->firstName;
+    }
+
+    public function name(): string
+    {
+        return $this->name;
+    }
+
+    public function email(): string
+    {
+        return $this->email;
+    }
+
+    public function phoneNumber(): string
+    {
+        return $this->phoneNumber;
+    }
+
+    public function shippingAmount(): float
+    {
+        return $this->shippingAmount;
+    }
+
+    public function address(): Address
+    {
+        return $this->address;
+    }
+
 }

@@ -7,6 +7,7 @@ namespace Lucasnpinheiro\Getnet;
 use Exception;
 use GuzzleHttp\Client;
 use GuzzleHttp\ClientInterface;
+use GuzzleHttp\Exception\ClientException;
 use InvalidArgumentException;
 use stdClass;
 use Throwable;
@@ -125,12 +126,15 @@ class Getnet
 
         if (get_class($transaction) === TransactionPix::class) {
             $transactionUrl = $this->getBaseUrl() . '/v1/payments/qrcode/pix';
-            $requestData['headers']['seller_id'] = $transaction->getSellerId();
+            $requestData['headers']['seller_id'] = $transaction->sellerId();
             $requestData['headers']['x-qrcode-expiration-time'] = $_ENV['PIX_TIMEOUT'] ?? 1800;
         }
 
         try {
             $response = $this->httpClient->request('POST', $transactionUrl, $requestData);
+            return json_decode($response->getBody()->getContents());
+        } catch (ClientException $e) {
+            $response = $e->getResponse();
             return json_decode($response->getBody()->getContents());
         } catch (Throwable $th) {
             throw new Exception($th->getMessage());

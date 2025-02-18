@@ -31,4 +31,41 @@ class SubMerchant implements JsonSerializable
             'postal_code' => $this->postalCode
         ];
     }
+
+    public function identificationCode(): string
+    {
+        return $this->identificationCode;
+    }
+
+    public function documentType(): string
+    {
+        return $this->documentType;
+    }
+
+    public function documentNumber(): string
+    {
+        return $this->documentNumber;
+    }
+
+    public function address(): string
+    {
+        return $this->address;
+    }
+
+    public function city(): string
+    {
+        return $this->city;
+    }
+
+    public function state(): string
+    {
+        return $this->state;
+    }
+
+    public function postalCode(): string
+    {
+        return $this->postalCode;
+    }
+
+
 }

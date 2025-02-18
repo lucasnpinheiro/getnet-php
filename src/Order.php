@@ -35,4 +35,14 @@ class Order implements JsonSerializable
     {
         return $this->orderId;
     }
+
+    public function salesTax(): ?float
+    {
+        return $this->salesTax;
+    }
+
+    public function productType(): ?string
+    {
+        return $this->productType;
+    }
 }

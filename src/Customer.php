@@ -41,13 +41,49 @@ class Customer implements JsonSerializable
         return $data;
     }
 
+    public function customerId(): string
+    {
+        return $this->customerId;
+    }
+
     public function address(): Address
     {
         return $this->billingAddress;
     }
 
-    public function customerId(): string
+    public function firstName(): ?string
     {
-        return $this->customerId;
+        return $this->firstName;
     }
+
+    public function lastName(): ?string
+    {
+        return $this->lastName;
+    }
+
+    public function name(): ?string
+    {
+        return $this->name;
+    }
+
+    public function email(): ?string
+    {
+        return $this->email;
+    }
+
+    public function documentType(): ?string
+    {
+        return $this->documentType;
+    }
+
+    public function documentNumber(): ?string
+    {
+        return $this->documentNumber;
+    }
+
+    public function phoneNumber(): ?string
+    {
+        return $this->phoneNumber;
+    }
+
 }

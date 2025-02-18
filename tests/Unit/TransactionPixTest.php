@@ -62,6 +62,6 @@ class TransactionPixTest extends TestCase
         ];
 
         $this->assertEquals($expected, $transactionPix->jsonSerialize());
-        $this->assertEquals('seller123', $transactionPix->getSellerId());
+        $this->assertEquals('seller123', $transactionPix->sellerId());
     }
 }

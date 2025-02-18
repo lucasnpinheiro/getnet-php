@@ -25,4 +25,24 @@ class Boleto implements JsonSerializable
             'provider' => $this->provider,
         ];
     }
+
+    public function documentNumber(): string
+    {
+        return $this->documentNumber;
+    }
+
+    public function expirationDate(): string
+    {
+        return $this->expirationDate;
+    }
+
+    public function instructions(): string
+    {
+        return $this->instructions;
+    }
+
+    public function provider(): string
+    {
+        return $this->provider;
+    }
 }

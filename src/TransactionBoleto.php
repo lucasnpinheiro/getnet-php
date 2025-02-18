@@ -25,4 +25,19 @@ class TransactionBoleto extends Transaction
             'customer' => $this->customer
         ]);
     }
+
+    public function order(): Order
+    {
+        return $this->order;
+    }
+
+    public function boleto(): Boleto
+    {
+        return $this->boleto;
+    }
+
+    public function customer(): Customer
+    {
+        return $this->customer;
+    }
 }

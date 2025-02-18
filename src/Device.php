@@ -21,4 +21,14 @@ class Device implements JsonSerializable
             'device_id' => $this->deviceId,
         ];
     }
+
+    public function ipAddress(): string
+    {
+        return $this->ipAddress;
+    }
+
+    public function deviceId(): string
+    {
+        return $this->deviceId;
+    }
 }

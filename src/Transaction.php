@@ -23,4 +23,19 @@ class Transaction implements JsonSerializable
             'currency' => $this->currency,
         ];
     }
+
+    public function sellerId(): string
+    {
+        return $this->sellerId;
+    }
+
+    public function amount(): int
+    {
+        return $this->amount;
+    }
+
+    public function currency(): string
+    {
+        return $this->currency;
+    }
 }
